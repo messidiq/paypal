@@ -27,12 +27,12 @@ function warna($text,$warna){
         }
         return $text;
 }
-function jpy_to_twd($cookie,$csrf){
+function jpy_to_twd($cookie,$csrf,$user){
 	$arr = array("\r","	");
 	$url = "https://www.paypal.com/myaccount/money/api/currencies/transfer";
 	$h = explode("\n",str_replace($arr,"","Cookie: $cookie
 	Content-Type: application/json
-	user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.130 Safari/537.36"));
+	user-agent: $user"));
 	$body = "{\"sourceCurrency\":\"JPY\",\"sourceAmount\":2,\"targetCurrency\":\"TWD\",\"_csrf\":\"$csrf\"}";
 	$ch = curl_init();
 	curl_setopt($ch, CURLOPT_URL, $url);
@@ -51,8 +51,9 @@ $loop = trim(fgets(STDIN));
 $file = file_get_contents("cookie.txt");
 $cookie = $file;
 $csrf = file_get_contents("csrf.txt");
+$user = file_get_contents("user-agent.txt");
 for ($x = 0; $x < $loop; $x++) {
-	$jpy_to_twd =  jpy_to_twd($cookie,$csrf);
+	$jpy_to_twd =  jpy_to_twd($cookie,$csrf,$user);
 	$output_send_jpy_twd = json_encode($jpy_to_twd);
 	$amount = getStr($output_send_jpy_twd,'"value":"','"');
 	if(strpos($output_send_jpy_twd,"null")==true){
